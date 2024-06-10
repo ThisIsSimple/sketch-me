@@ -1,3 +1,5 @@
+import uuid
+
 import tensorflow as tf
 import os
 from PIL import Image
@@ -15,15 +17,25 @@ def predict_image(url: str):
     model = tf.keras.models.load_model(model_save_path)
 
     image = Image.open(requests.get(url, stream=True).raw)
+    temp_image = "temp/" + uuid.uuid4().__str__() + ".webp"
+    image.save(temp_image)
 
-    # 이미지 불러오기
-    image = tf.keras.preprocessing.image.load_img(image, target_size=(256, 256))
-    image = tf.keras.preprocessing.image.img_to_array(image)
-    image = tf.expand_dims(image, axis=0)  # 배치 차원 추가
+    try:
+        # 이미지 불러오기
+        image = tf.keras.preprocessing.image.load_img(temp_image, target_size=(256, 256))
+        image = tf.keras.preprocessing.image.img_to_array(image)
+        image = tf.expand_dims(image, axis=0)  # 배치 차원 추가
 
-    # 예측
-    predictions = model.predict(image)
-    category = categories[tf.math.argmax(predictions[0])]
-    print(predictions, category)
+        # 예측
+        predictions = model.predict(image)
+        category = categories[tf.math.argmax(predictions[0])]
+        print(predictions, category)
+    except:
+        pass # TODO. implement error handler
+    finally:
+        try:
+            os.remove(temp_image) # remove image after prediction
+        except:
+            pass
 
     return category

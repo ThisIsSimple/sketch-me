@@ -2,12 +2,15 @@ from typing import Union
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+import model
 
 app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "*" # TODO. update this wildcard to website url.
+    "*"  # TODO. update this wildcard to website url.
 ]
 
 app.add_middleware(
@@ -24,8 +27,14 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+class Item(BaseModel):
+    url: str
+
 
 @app.post("/prediction")
+def predict(item: Item):
+    label = model.predict_image(item.url)
+    return {
+        "url": item.url,
+        "label": label
+    }
