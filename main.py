@@ -33,8 +33,10 @@ class Item(BaseModel):
 
 @app.post("/prediction")
 def predict(item: Item):
-    label = model.predict_image(item.url)
+    label, percentage, predictions_list = model.predict_image(item.url)
     return {
         "url": item.url,
-        "label": label
+        "label": label,
+        "percentage": percentage,
+        "predictions": predictions_list
     }

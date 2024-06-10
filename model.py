@@ -20,6 +20,10 @@ def predict_image(url: str):
     temp_image = "temp/" + uuid.uuid4().__str__() + ".webp"
     image.save(temp_image)
 
+    category = ""
+    percentage = 0
+    prediction_dict = {}
+
     try:
         # 이미지 불러오기
         image = tf.keras.preprocessing.image.load_img(temp_image, target_size=(256, 256))
@@ -29,7 +33,11 @@ def predict_image(url: str):
         # 예측
         predictions = model.predict(image)
         category = categories[tf.math.argmax(predictions[0])]
-        print(predictions, category)
+        percentage = round(float(predictions[0][tf.math.argmax(predictions[0])]), 4)
+        print(predictions, category, percentage)
+
+        for index, item in enumerate(predictions[0].tolist()):
+            prediction_dict[categories[index]] = round(float(item), 4)
     except:
         pass # TODO. implement error handler
     finally:
@@ -38,4 +46,4 @@ def predict_image(url: str):
         except:
             pass
 
-    return category
+    return category, percentage, prediction_dict
