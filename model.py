@@ -4,6 +4,7 @@ import tensorflow as tf
 import os
 from PIL import Image
 import requests
+from image_preprocess import crop_and_resize_image
 
 # 사과, 자전거, 가위, 나무
 # categories = ["사과", "자전거", "가위", "나무"]
@@ -19,6 +20,9 @@ def predict_image(url: str):
     image = Image.open(requests.get(url, stream=True).raw)
     temp_image = "temp/" + uuid.uuid4().__str__() + ".webp"
     image.save(temp_image)
+
+    # image 전처리 진행
+    crop_and_resize_image(temp_image)
 
     category = ""
     percentage = 0
